@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { COLORS, uid, toText } from './store.js'
 import { useVoice } from './useVoice.js'
+import { Share } from '@capacitor/share'
 
 export default function Editor({ note, onChange, onClose, onDelete }) {
   const [n, setN] = useState(note)
@@ -20,6 +21,7 @@ export default function Editor({ note, onChange, onClose, onDelete }) {
 
   const share = async () => {
     const text = toText(n)
+    try { if ((await Share.canShare()).value) { await Share.share({ title: n.title || 'Note', text }); return } } catch { return }
     if (navigator.share) { try { await navigator.share({ title: n.title || 'Note', text }); return } catch { return } }
     await navigator.clipboard.writeText(text); alert('Copied to clipboard — paste it anywhere to share.')
   }
